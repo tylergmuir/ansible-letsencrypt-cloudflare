@@ -1,0 +1,52 @@
+---
+- name: Install openssl and cryptography python package
+  ansible.builtin.package:
+    name:
+      - openssl
+      - python3
+      - python3-cryptography
+    state: present
+
+- name: Generate private keys
+  community.crypto.openssl_privatekey:
+    path: "{{ key_path }}/{{ item }}.pem"
+    type: "{{ cert_type }}"
+    size: "{{ cert_size }}"
+    select_crypto_backend: cryptography
+  loop: ["{{ cert_name }}", "account-key"]
+
+- name: Generate csr
+  community.crypto.openssl_csr:
+    path: "{{ cert_path }}/{{ cert_name }}.csr"
+    privatekey_path: "{{ key_path }}/{{ cert_name }}.pem"
+    common_name: "{{ common_name }}"
+    subject_alt_name: "DNS:{{ subject_alt_name | join(',DNS:') }}"
+
+- name: Create acme challenge
+  community.crypto.acme_certificate:
+    acme_version: 2
+    terms_agreed: true
+    account_key_src: "{{ key_path }}/account-key.pem"
+    src: "{{ cert_path }}/{{ cert_name }}.csr"
+    dest: "{{ cert_path }}/{{ cert_name }}.crt"
+    challenge: dns-01
+    acme_directory: "{{ letsencrypt_url }}"
+    select_crypto_backend: cryptography
+  register: acme_challenge
+  notify: Validate acme challenge
+
+- name: Create cloudflare TXT record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare_api_token }}"
+    account_email: "{{ cloudflare_email }}"
+    zone: "{{ dns_zone }}"
+    record: "{{ acme_challenge.challenge_data[common_name]['dns-01'].record }}"
+    type: TXT
+    value: "{{ acme_challenge.challenge_data[common_name]['dns-01'].resource_value }}"
+    solo: true
+    state: present
+  notify: Delete cloudflare TXT record
+
+- name: Pause for DNS propagation
+  ansible.builtin.pause:
+    seconds: 120
