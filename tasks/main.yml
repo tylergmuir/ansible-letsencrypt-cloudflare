@@ -52,5 +52,4 @@
     seconds: 120
 
 - name: Flush handlers
-  ansible.builtin.meta:
-    meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
