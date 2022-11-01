@@ -1,12 +1,4 @@
 ---
-# - name: Install openssl and cryptography python package
-#   ansible.builtin.package:
-#     name:
-#       - openssl
-#       - python3
-#       - python3-cryptography
-#     state: present
-
 - name: Generate private keys
   community.crypto.openssl_privatekey:
     path: "{{ key_path }}/{{ item }}.pem"
