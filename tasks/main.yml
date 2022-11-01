@@ -47,9 +47,12 @@
     state: present
   notify: Delete cloudflare TXT record
 
-- name: Pause for DNS propagation
-  ansible.builtin.pause:
-    seconds: 120
+- name: Wait for TXT record to propagate
+  community.dns.wait_for_txt:
+    records:
+      - name: "{{ acme_challenge.challenge_data[common_name]['dns-01'].record }}"
+        values: "{{ acme_challenge.challenge_data[common_name]['dns-01'].resource_value }}"
+        mode: equals
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
