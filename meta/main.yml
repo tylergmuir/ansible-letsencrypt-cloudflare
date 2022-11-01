@@ -1,4 +1,6 @@
 galaxy_info:
+  role_name: letsencrypt_cloudflare
+  namespace: pstyler
   author: Tyler Muir
   description: Issues a certificate from Let's Encrypt using Cloudflare DNS.
 
@@ -15,7 +17,7 @@ galaxy_info:
   # - CC-BY-4.0
   license: MIT
 
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
 
   # If this a Container Enabled role, provide the minimum Ansible Container version.
   # min_ansible_container_version:
@@ -26,7 +28,7 @@ galaxy_info:
   # To view available platforms and versions (or releases), visit:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
-  platforms:
+  platforms: []
 
   galaxy_tags: []
     # List tags for your role here, one per line. A tag is a keyword that describes
