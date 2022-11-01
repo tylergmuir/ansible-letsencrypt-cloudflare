@@ -1,0 +1,10 @@
+---
+cert_type: RSA
+cert_size: 2048
+cert_path: /etc/pki/tls
+key_path: /etc/pki/tls/private
+cert_name: "{{ ansible_hostname }}"
+subject_alt_name: ["{{ ansible_fqdn }}"]
+common_name: "{{ ansible_fqdn }}"
+dns_zone: "{{ common_name | replace(ansible_hostname + '.', '') }}"
+letsencrypt_url: https://acme-v02.api.letsencrypt.org/directory

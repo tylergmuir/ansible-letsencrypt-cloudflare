@@ -1,0 +1,22 @@
+---
+- name: Validate acme challenge
+  community.crypto.acme_certificate:
+    acme_version: 2
+    account_key_src: "{{ key_path }}/account-key.pem"
+    src: "{{ cert_path }}/{{ cert_name }}.csr"
+    dest: "{{ cert_path }}/{{ cert_name }}.crt"
+    fullchain_dest: "{{ cert_path }}/{{ cert_name }}-fullchain.crt"
+    chain_dest: "{{ cert_path }}/{{ cert_name }}-intermediate.crt"
+    challenge: dns-01
+    acme_directory: "{{ letsencrypt_url }}"
+    data: "{{ acme_challenge }}"
+    select_crypto_backend: cryptography
+
+- name: Delete cloudflare TXT record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare_api_token }}"
+    account_email: "{{ cloudflare_email }}"
+    zone: "{{ dns_zone }}"
+    record: "{{ acme_challenge.challenge_data[common_name]['dns-01'].record }}"
+    type: TXT
+    state: absent
