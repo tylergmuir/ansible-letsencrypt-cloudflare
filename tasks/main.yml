@@ -7,10 +7,6 @@
 #       - python3-cryptography
 #     state: present
 
-- name: Install required python module
-  ansible.builtin.pip:
-    name: dnspython
-
 - name: Generate private keys
   community.crypto.openssl_privatekey:
     path: "{{ key_path }}/{{ item }}.pem"
@@ -51,12 +47,9 @@
     state: present
   notify: Delete cloudflare TXT record
 
-- name: Wait for DNS propagation
-  ansible.builtin.debug:
-    msg: waiting
-  until: lookup('community.general.dig', acme_challenge.challenge_data[common_name]['dns-01'].record, 'qtype=TXT') == acme_challenge.challenge_data[common_name]['dns-01'].resource_value
-  retries: 30
-  delay: 10
+- name: Pause for DNS propagation
+  ansible.builtin.pause:
+    seconds: 30
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
