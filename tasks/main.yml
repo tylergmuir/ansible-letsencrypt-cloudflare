@@ -54,7 +54,7 @@
 - name: Wait for DNS propagation
   ansible.builtin.debug:
     msg: waiting
-  until: lookup('community.general.dig', "{{ acme_challenge.challenge_data[common_name]['dns-01'].record }}", 'qtype=TXT') == "{{ acme_challenge.challenge_data[common_name]['dns-01'].resource_value }}"
+  until: lookup('community.general.dig', acme_challenge.challenge_data[common_name]['dns-01'].record, 'qtype=TXT') == acme_challenge.challenge_data[common_name]['dns-01'].resource_value
   retries: 30
   delay: 10
 
